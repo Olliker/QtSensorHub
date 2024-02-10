@@ -10,10 +10,14 @@ MainWindow::MainWindow(QWidget *parent)
     visualizzaGrafoButton = new QPushButton("Visualizza Grafo", this);
     grafoView = new QGraphicsView(this);
     grafoScene = new QGraphicsScene(this);
+    listaPazientiWidget = new QListWidget(this);
+    mainLayout = new QVBoxLayout;
+
 
     // Connetti i pulsanti alle rispettive slot
     connect(aggiungiPazienteButton, &QPushButton::clicked, this, &MainWindow::aggiungiPaziente);
     connect(visualizzaGrafoButton, &QPushButton::clicked, this, &MainWindow::visualizzaGrafo);
+    connect(listaPazientiWidget, &QListWidget::itemClicked, this, &MainWindow::visualizzaSensoriPaziente);
 
     // Configura il layout della finestra principale
     QVBoxLayout *mainLayout = new QVBoxLayout;
@@ -29,8 +33,34 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::aggiungiPaziente() {
    sensorHub->addPaziente(nomePazienteLineEdit->text().toStdString());
+   aggiornaLista();
 }
 
 void MainWindow::visualizzaGrafo() {
     // Implementa la logica per visualizzare il grafo dei sensori
+}
+
+void MainWindow::aggiornaLista() {
+    listaPazientiWidget->clear();
+    for (const auto& paziente : sensorHub->getSensors()) {
+        QString nomePaziente = QString::fromStdString(paziente->getPaziente());
+        QListWidgetItem *item = new QListWidgetItem(nomePaziente);
+        listaPazientiWidget->addItem(item);
+    }
+}
+
+void MainWindow::visualizzaSensoriPaziente(QListWidgetItem *item) {
+    // Implementa la logica per visualizzare i sensori del paziente selezionato
+
+    // Esempio:
+    QString nomePaziente = item->text();
+    for (const auto& paziente : sensorHub->getSensors()) {
+        if (nomePaziente == QString::fromStdString(paziente->getPaziente())) {
+            for (int i = 0; i < paziente->getNumeroValori(); i++) {
+                double valore = paziente->getValore(i);
+                qDebug() << valore;
+            }
+        }
+    }
+
 }

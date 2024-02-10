@@ -7,6 +7,7 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QVBoxLayout>
+#include <QListWidget>
 
 #include "Sensors/sensorHub.h"
 
@@ -19,6 +20,9 @@ public:
 private slots:
     void aggiungiPaziente();
     void visualizzaGrafo();
+    void aggiornaLista();
+    void visualizzaSensoriPaziente(QListWidgetItem *item);
+
 
 private:
     QLineEdit *nomePazienteLineEdit;
@@ -26,6 +30,9 @@ private:
     QPushButton *visualizzaGrafoButton;
     QGraphicsView *grafoView;
     QGraphicsScene *grafoScene;
+    QListWidget *listaPazientiWidget;
+    QVBoxLayout *mainLayout;
+
 
     SensorHub *sensorHub;
 };

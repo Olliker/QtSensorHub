@@ -17,9 +17,17 @@ void SensorHub::addSensor(Sensor* sensor) {
 }
 
 void SensorHub::addPaziente(string paziente) {
-    addSensor(new GlicosioSensor(paziente, 0));
-    addSensor(new InsulinaSensor(paziente, 0));
-    addSensor(new PressioneSensor(paziente, 0));
+
+    //controlo che il paziente non sia già presente
+    for (auto sensor : sensors) {
+        if (sensor->getPaziente() == paziente) {
+            return;
+        }
+    }
+    //aggiungo i sensori per il paziente
+    sensors.push_back(new GlicosioSensor(paziente, 0));
+    sensors.push_back(new PressioneSensor(paziente, 0));
+    sensors.push_back(new InsulinaSensor(paziente, 0));
 }
 
 void SensorHub::removeSensor(Sensor* sensor) {
@@ -49,6 +57,10 @@ void SensorHub::simulazioneSensore(Sensor* sensor) {
     for (int i = 0; i < 10; i++) {
         sensor->generaValore();
     }
+}
+
+vector<Sensor*> SensorHub::getSensors() const {
+    return sensors;
 }
 
 vector<Sensor*> SensorHub::getValoriPreoccupanti(const vector<Sensor*> sensors) {

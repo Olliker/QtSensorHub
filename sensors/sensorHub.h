@@ -21,6 +21,8 @@ public:
     void calibraAllSensors();
     void generaValoreSensor(Sensor* sensor);
     void simulazioneSensore(Sensor* sensor);
+
+    vector<Sensor*> getSensors() const;
     
     vector<Sensor*> getValoriPreoccupanti(const vector<Sensor*> sensors);
     ~SensorHub() = default;
