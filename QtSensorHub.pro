@@ -10,10 +10,21 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
+    sensors\sensor.cpp \
+    sensors\pressioneSensor.cpp \
+    sensors\insulinaSensor.cpp \
+    sensors\glucosioSensor.cpp \
+    sensors\sensorHub.cpp \
     mainwindow.cpp
 
 HEADERS += \
+    sensors\sensor.h \
+    sensors\pressioneSensor.h \
+    sensors\insulinaSensor.h \
+    sensors\glucosioSensor.h \
+    sensors\sensorHub.h \
     mainwindow.h
+
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

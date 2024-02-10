@@ -1,8 +1,9 @@
 #include "sensorHub.h"
+#include "sensors/insulinaSensor.h"
+#include "sensors/pressioneSensor.h"
+#include "sensors/glucosioSensor.h"
 
-SensorHub::SensorHub() {
-    srand(time(nullptr));
-}
+SensorHub* SensorHub::instance = nullptr;
 
 SensorHub* SensorHub::getInstance() {
     if (instance == nullptr) {
@@ -15,13 +16,23 @@ void SensorHub::addSensor(Sensor* sensor) {
     sensors.push_back(sensor);
 }
 
+void SensorHub::addPaziente(string paziente) {
+    addSensor(new GlicosioSensor(paziente, 0));
+    addSensor(new InsulinaSensor(paziente, 0));
+    addSensor(new PressioneSensor(paziente, 0));
+}
+
 void SensorHub::removeSensor(Sensor* sensor) {
-    for (int i = 0; i < sensors.size(); i++) {
+    for (std::vector<Sensor*>::size_type i = 0; i < sensors.size(); i++) {
         if (sensors[i] == sensor) {
             sensors.erase(sensors.begin() + i);
             break;
         }
     }
+}
+
+void SensorHub::calibraSensor(Sensor* sensor) {
+    sensor->calibra();
 }
 
 void SensorHub::calibraAllSensors() {
