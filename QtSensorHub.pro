@@ -10,6 +10,7 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
+    pazienteitemwidget.cpp \
     sensors\sensor.cpp \
     sensors\pressioneSensor.cpp \
     sensors\insulinaSensor.cpp \
@@ -18,6 +19,7 @@ SOURCES += \
     mainwindow.cpp
 
 HEADERS += \
+    pazienteitemwidget.h \
     sensors\sensor.h \
     sensors\pressioneSensor.h \
     sensors\insulinaSensor.h \

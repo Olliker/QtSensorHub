@@ -2,39 +2,32 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QListWidget>
 #include <QPushButton>
 #include <QLineEdit>
-#include <QGraphicsView>
-#include <QGraphicsScene>
-#include <QVBoxLayout>
-#include <QListWidget>
+#include "pazienteitemwidget.h"
+#include "sensors/sensorHub.h"
 
-#include "Sensors/sensorHub.h"
-
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
     Q_OBJECT
 
 public:
     MainWindow(QWidget *parent = nullptr);
 
-private slots:
-    void aggiungiPaziente();
-    void visualizzaGrafo();
+public slots:
     void aggiornaLista();
-    void visualizzaSensoriPaziente(QListWidgetItem *item);
-
+    void visualizzaSensoriPaziente(PazienteItemWidget *pazienteItem);
+    void visualizzaSensoriPreoccupanti();
 
 private:
-    QLineEdit *nomePazienteLineEdit;
-    QPushButton *aggiungiPazienteButton;
-    QPushButton *visualizzaGrafoButton;
-    QGraphicsView *grafoView;
-    QGraphicsScene *grafoScene;
-    QListWidget *listaPazientiWidget;
-    QVBoxLayout *mainLayout;
-
-
     SensorHub *sensorHub;
+
+    QListWidget *listaPazientiWidget;
+    QPushButton *aggiungiPazienteButton;
+    QPushButton *vediSensoriButton;
+    QLineEdit *cercaPazienteLineEdit;
+    QPushButton *preoccupantiButton;
 };
 
 #endif // MAINWINDOW_H

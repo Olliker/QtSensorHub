@@ -2,6 +2,7 @@
 #include "sensors/insulinaSensor.h"
 #include "sensors/pressioneSensor.h"
 #include "sensors/glucosioSensor.h"
+#include <algorithm>
 
 SensorHub* SensorHub::instance = nullptr;
 
@@ -59,6 +60,38 @@ void SensorHub::simulazioneSensore(Sensor* sensor) {
     }
 }
 
+bool SensorHub::hasPreoccupante(const vector<Sensor*>& sensors) const {
+    for (auto sensor : sensors) {
+        if (sensor->isPreoccupante()) {
+            return true;
+        }
+    }
+    return false;
+}
+
+vector<string> SensorHub::getPazienti() {
+    vector<string> pazienti;
+    for (auto sensor : sensors) {
+        string paziente = sensor->getPaziente();
+        if (std::find(pazienti.begin(), pazienti.end(), paziente) == pazienti.end()) {
+            pazienti.push_back(paziente);
+        }
+    }
+    return pazienti;
+}
+
+vector<Sensor*> SensorHub::getSensorsByPaziente(string paziente) {
+    vector<Sensor*> sensorsByPaziente;
+    for (auto sensor : sensors) {
+        if (sensor->getPaziente() == paziente) {
+            sensorsByPaziente.push_back(sensor);
+        }
+    }
+    return sensorsByPaziente;
+}
+
+
+
 vector<Sensor*> SensorHub::getSensors() const {
     return sensors;
 }
@@ -66,7 +99,7 @@ vector<Sensor*> SensorHub::getSensors() const {
 vector<Sensor*> SensorHub::getValoriPreoccupanti(const vector<Sensor*> sensors) {
     vector<Sensor*> valoriPreoccupanti;
     for (auto sensor : sensors) {
-        if (sensor->getUltimoValore() > sensor->getMaxAccettabile() || sensor->getUltimoValore() < sensor->getMinAccettabile()) {
+        if (sensor->isPreoccupante()) {
             valoriPreoccupanti.push_back(sensor);
         }
     }
