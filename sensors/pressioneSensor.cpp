@@ -26,5 +26,6 @@ string PressioneSensor::getUnitaMisura() {
     return unitaMisura;
 }
 
-
-
+string PressioneSensor::getTipo() const {
+    return "pressione";
+}

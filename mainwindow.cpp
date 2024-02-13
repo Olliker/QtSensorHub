@@ -1,93 +1,196 @@
+
 #include "mainwindow.h"
 #include "pazienteitemwidget.h"
+#include "newsensorpopup.h"
+#include "qscrollarea.h"
 #include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QPushButton>
+#include <QLineEdit>
 #include <QDebug>
+#include <QString>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
     sensorHub = SensorHub::getInstance();
 
-    listaPazientiWidget = new QListWidget();
-    aggiungiPazienteButton = new QPushButton("Aggiungi paziente");
-    vediSensoriButton = new QPushButton("Vedi tutti i sensori");
-    cercaPazienteLineEdit = new QLineEdit();
-    preoccupantiButton = new QPushButton("Sensori preoccupanti");
-
-    connect(preoccupantiButton, SIGNAL(clicked()), this, SLOT(visualizzaSensoriPreoccupanti()));
-
-    QLabel *searchIconLabel = new QLabel(this);
-
+    // Creazione dei bottoni
+    QPushButton *aggiungiPazienteButton = new QPushButton("Aggiungi paziente");
+    QPushButton *salvaSalvataggioButton = new QPushButton("Salva");
+    QPushButton *caricaSalvataggioButton = new QPushButton("Carica");
+    QLineEdit *cercaPazienteLineEdit = new QLineEdit();
+    QCheckBox *preoccupantiCheckBox = new QCheckBox("Visualizza Preoccupanti");
     cercaPazienteLineEdit->setPlaceholderText("Cerca Paziente...");
     cercaPazienteLineEdit->setClearButtonEnabled(true);
-    cercaPazienteLineEdit->setMaximumWidth(200);
 
-    QHBoxLayout *searchLayout = new QHBoxLayout();
-    searchLayout->addWidget(searchIconLabel);
-    searchLayout->addWidget(cercaPazienteLineEdit);
+    // Layout per i bottoni
+    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    buttonLayout->addWidget(aggiungiPazienteButton);
+    buttonLayout->addStretch(); // Aggiunge uno spazio elastico per spostare i pulsanti a destra
+    buttonLayout->addWidget(salvaSalvataggioButton);
+    buttonLayout->addWidget(caricaSalvataggioButton);
+    buttonLayout->addWidget(preoccupantiCheckBox);
+    buttonLayout->addWidget(cercaPazienteLineEdit);
 
-    QGridLayout *layout = new QGridLayout();
-    layout->addWidget(aggiungiPazienteButton, 0, 0, Qt::AlignTop | Qt::AlignLeft);
-    layout->addWidget(vediSensoriButton, 1, 0, Qt::AlignTop | Qt::AlignLeft);
-    layout->addLayout(searchLayout, 0, 1, Qt::AlignTop | Qt::AlignRight);
-    layout->addWidget(preoccupantiButton, 1, 1, Qt::AlignTop | Qt::AlignRight);
-    layout->addWidget(listaPazientiWidget, 2, 0, 1, 2);
+    // Widget principale per i bottoni
+    QWidget *buttonWidget = new QWidget();
+    buttonWidget->setLayout(buttonLayout);
 
-    // Imposta il margine inferiore a 10 pixel
-    layout->setContentsMargins(10, 0, 10, 10);
+    // Creazione dell'area di scorrimento per la lista pazienti
+    QScrollArea *scrollArea = new QScrollArea();
+    scrollArea->setWidgetResizable(true);
+    scrollArea->setFrameStyle(QFrame::NoFrame);
+    // Widget contenente la lista pazienti
+    QWidget *listWidgetContainer = new QWidget();
+    QVBoxLayout *listLayout = new QVBoxLayout(listWidgetContainer); // Cambiato da QHBoxLayout a QVBoxLayout
 
-    QWidget *centralWidget = new QWidget(this);
-    centralWidget->setLayout(layout);
+    // Creazione della lista pazienti
+    listaPazientiWidget = new QListWidget();
+    listLayout->addWidget(listaPazientiWidget);
+
+    // Aggiunta del widget contenente la lista all'area di scorrimento
+    scrollArea->setWidget(listWidgetContainer);
+
+    // Layout principale della finestra
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+    mainLayout->addWidget(buttonWidget);
+    mainLayout->addWidget(scrollArea); // Aggiunto l'area di scorrimento al layout principale
+
+    // Creazione del widget principale e impostazione del layout
+    QWidget *centralWidget = new QWidget();
+    centralWidget->setLayout(mainLayout);
     setCentralWidget(centralWidget);
 
-    aggiornaLista();
-    connect(listaPazientiWidget, &QListWidget::itemClicked, [=](QListWidgetItem *item) {
-        PazienteItemWidget *pazienteItem = dynamic_cast<PazienteItemWidget*>(listaPazientiWidget->itemWidget(item));
-        if (pazienteItem) {
-            visualizzaSensoriPaziente(pazienteItem);
+    connect(cercaPazienteLineEdit, &QLineEdit::textChanged, this, &MainWindow::cercaPaziente);
+    connect(aggiungiPazienteButton, SIGNAL(clicked()), this, SLOT(mostraPopupNuovoSensore()));
+    connect(listaPazientiWidget, &QListWidget::itemClicked, this, [=](QListWidgetItem *item) {
+        PazienteItemWidget *pazienteItem = qobject_cast<PazienteItemWidget *>(listaPazientiWidget->itemWidget(item));
+        visualizzaSensoriPaziente(pazienteItem->getSensor());
+    });
+    connect(preoccupantiCheckBox, &QCheckBox::stateChanged, this, [=](int state) {
+        if (state == Qt::Checked)
+        {
+            visualizzaSensoriPreoccupanti();
+        }
+        else
+        {
+            aggiornaLista();
         }
     });
+
+    aggiornaLista();
 }
 
-void MainWindow::aggiornaLista() {
+void MainWindow::aggiornaLista()
+{
     listaPazientiWidget->clear();
 
-    const int numColonneDesiderate = 5;
-    QGridLayout *layout = new QGridLayout();
-
-    int rowIndex = 0;
-    int colIndex = 0;
-
-    for (auto paziente : sensorHub->getPazienti()) {
-        auto sensors = sensorHub->getSensorsByPaziente(paziente);
-        bool almenoUnoPreoccupante = sensorHub->hasPreoccupante(sensors);
-
-        PazienteItemWidget *item = new PazienteItemWidget(QString::fromStdString(paziente), almenoUnoPreoccupante, sensors.size());
-        layout->addWidget(item, rowIndex, colIndex);
-
-        colIndex++;
-        if (colIndex >= numColonneDesiderate) {
-            colIndex = 0;
-            rowIndex++;
+    for (auto sensor : sensorHub->getSensors())
+    {
+        //controllo per non aggiungere pazienti duplicati
+        bool pazientePresente = false;
+        for (int i = 0; i < listaPazientiWidget->count(); i++)
+        {
+            PazienteItemWidget *pazienteItem = qobject_cast<PazienteItemWidget *>(listaPazientiWidget->itemWidget(listaPazientiWidget->item(i)));
+            if (pazienteItem->getSensor()->getPaziente() == sensor->getPaziente())
+            {
+                pazientePresente = true;
+                break;
+            }
+        }
+        if (!pazientePresente)
+        {
+            aggiungiPazienteAllaLista(sensor, sensorHub);
         }
     }
-
-    // Aggiungi uno stretch verticale all'ultimo elemento del layout
-    layout->setRowStretch(rowIndex, 1);
-
-    listaPazientiWidget->setLayout(layout);
 }
-void MainWindow::visualizzaSensoriPaziente(PazienteItemWidget *pazienteItem)
+
+void MainWindow::aggiungiPazienteAllaLista(Sensor *sensor, SensorHub *sensorHub)
 {
-    if (pazienteItem) {
-        QString nomePaziente = pazienteItem->getNomePaziente();
-        qDebug() << "Visualizza sensori per paziente: " << nomePaziente;
-    }
+
+    PazienteItemWidget *item = new PazienteItemWidget(sensor, sensorHub);
+    QListWidgetItem *listItem = new QListWidgetItem();
+    listItem->setSizeHint(QSize(0, 200));
+    listaPazientiWidget->addItem(listItem);
+    listaPazientiWidget->setItemWidget(listItem, item);
 }
+
+void MainWindow::visualizzaSensoriPaziente(Sensor* sensor)
+{
+    if (sensor == nullptr)
+    {
+        return;
+    }
+    // Aggiungi qui la logica per visualizzare i sensori del paziente
+    // (potresti utilizzare un'altra finestra o un widget per mostrare i sensori)
+    qDebug() << "Visualizza sensori del paziente: " << sensor->getPaziente();
+}
+
 
 void MainWindow::visualizzaSensoriPreoccupanti()
 {
-    for (auto sensor : sensorHub->getValoriPreoccupanti(sensorHub->getSensors())) {
-        sensor->generaValore();
+
+
+    for (int i = 0; i < listaPazientiWidget->count(); i++)
+    {
+        PazienteItemWidget *pazienteItem = qobject_cast<PazienteItemWidget *>(listaPazientiWidget->itemWidget(listaPazientiWidget->item(i)));
+
+        if (pazienteItem && ( pazienteItem->getSensor()->isPreoccupante()))
+        {
+            listaPazientiWidget->item(i)->setHidden(false);
+        }
+        else
+        {
+            listaPazientiWidget->item(i)->setHidden(true);
+        }
     }
+}
+
+
+#include <QString>
+
+void MainWindow::cercaPaziente(const QString &searchText)
+{
+    for (int i = 0; i < listaPazientiWidget->count(); i++)
+    {
+        PazienteItemWidget *pazienteItem = qobject_cast<PazienteItemWidget *>(listaPazientiWidget->itemWidget(listaPazientiWidget->item(i)));
+
+        if (pazienteItem)
+        {
+            QString pazienteQString = QString::fromStdString(pazienteItem->getSensor()->getPaziente());
+            if (!pazienteQString.contains(searchText, Qt::CaseInsensitive))
+            {
+                listaPazientiWidget->item(i)->setHidden(true);
+            }
+            else
+            {
+                listaPazientiWidget->item(i)->setHidden(false);
+            }
+        }
+    }
+}
+
+
+void MainWindow::aggiungiPaziente()
+{
+    NewSensorPopup *popup = new NewSensorPopup(sensorHub, this);
+    connect(popup, &NewSensorPopup::accepted, this, &MainWindow::aggiornaLista);
+    popup->exec();
+}
+
+void MainWindow::mostraPopupNuovoSensore()
+{
+    aggiungiPaziente();
+}
+
+
+void MainWindow::salvaSalvataggio() {
+    // Implementa la logica per salvare il tuo stato o dati
+    qDebug() << "Salvataggio effettuato";
+}
+
+void MainWindow::caricaSalvataggio() {
+    // Implementa la logica per caricare il tuo stato o dati salvati
+    qDebug() << "Salvataggio caricato";
 }

@@ -1,4 +1,4 @@
- #ifndef INSULINASENSOR_H
+#ifndef INSULINASENSOR_H
 #define INSULINASENSOR_H
 
 #include "sensor.h"
@@ -17,6 +17,7 @@ public:
     double getMaxAccettabile() override;
     double getMinAccettabile() override;
     string getUnitaMisura() override;
+    string getTipo() const override;
 
     ~InsulinaSensor() = default;
 };

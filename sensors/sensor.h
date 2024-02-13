@@ -37,7 +37,7 @@ public:
     virtual double getMinAccettabile() = 0;
     virtual double getMaxAccettabile() = 0;
     virtual string getUnitaMisura() = 0;
-
+    virtual string getTipo() const = 0;
     ~Sensor() = default;
 
 };

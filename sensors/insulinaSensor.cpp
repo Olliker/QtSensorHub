@@ -24,3 +24,7 @@ double InsulinaSensor::getMinAccettabile() {
 string InsulinaSensor::getUnitaMisura() {
     return unitaMisura;
 }
+
+string InsulinaSensor::getTipo() const {
+    return "insulina";
+}

@@ -5,7 +5,9 @@
 #include <QListWidget>
 #include <QPushButton>
 #include <QLineEdit>
-#include "pazienteitemwidget.h"
+#include <QLabel>
+
+#include "qcheckbox.h"
 #include "sensors/sensorHub.h"
 
 class MainWindow : public QMainWindow
@@ -17,17 +19,26 @@ public:
 
 public slots:
     void aggiornaLista();
-    void visualizzaSensoriPaziente(PazienteItemWidget *pazienteItem);
+    void visualizzaSensoriPaziente(Sensor* sensor);
     void visualizzaSensoriPreoccupanti();
+    void cercaPaziente(const QString& searchText);
+    void aggiungiPaziente();
+    void mostraPopupNuovoSensore();
+    void aggiungiPazienteAllaLista(Sensor* sensor, SensorHub* sensorHub);
+    void salvaSalvataggio();
+    void caricaSalvataggio();
+
 
 private:
-    SensorHub *sensorHub;
 
-    QListWidget *listaPazientiWidget;
-    QPushButton *aggiungiPazienteButton;
-    QPushButton *vediSensoriButton;
-    QLineEdit *cercaPazienteLineEdit;
-    QPushButton *preoccupantiButton;
+    SensorHub* sensorHub;
+    QListWidget* listaPazientiWidget;
+    QPushButton* aggiungiPazienteButton;
+    QLineEdit* cercaPazienteLineEdit;
+    QCheckBox *preoccupantiCheckBox;
+    QPushButton *salvaSalvataggioButton;
+    QPushButton *caricaSalvataggioButton;
+
 };
 
 #endif // MAINWINDOW_H
