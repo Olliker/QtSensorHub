@@ -1,15 +1,15 @@
-#ifndef GLICOSIOSENSOR_H
-#define GLICOSIOSENSOR_H
+#ifndef GLUCOSIOSENSOR_H
+#define GLUCOSIOSENSOR_H
 
 #include "sensor.h"
 
-class GlicosioSensor : public Sensor {
+class GlucosioSensor : public Sensor {
 private:
     static double maxAccettabile;
     static double minAccettabile;
     static string unitaMisura;
 public:
-    GlicosioSensor(string paziente, double offset) : Sensor(paziente, offset) {};
+    GlucosioSensor(string paziente, double offset) : Sensor(paziente, offset) {};
 
     void calibra() override;
     void generaValore() override;
@@ -17,8 +17,9 @@ public:
     double getMaxAccettabile() override;
     double getMinAccettabile() override;
     string getUnitaMisura() override;
+    string getTipo() const override;
 
-    ~GlicosioSensor() = default;
+    ~GlucosioSensor() = default;
 };
 
-#endif // GLICOSIOSENSOR_H
+#endif // GLUCOSIOSENSOR_H

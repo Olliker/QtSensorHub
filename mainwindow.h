@@ -2,39 +2,43 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QListWidget>
 #include <QPushButton>
 #include <QLineEdit>
-#include <QGraphicsView>
-#include <QGraphicsScene>
-#include <QVBoxLayout>
-#include <QListWidget>
+#include <QLabel>
 
-#include "Sensors/sensorHub.h"
+#include "qcheckbox.h"
+#include "sensors/sensorHub.h"
 
-class MainWindow : public QMainWindow {
+class MainWindow : public QMainWindow
+{
     Q_OBJECT
 
 public:
     MainWindow(QWidget *parent = nullptr);
 
-private slots:
-    void aggiungiPaziente();
-    void visualizzaGrafo();
+public slots:
     void aggiornaLista();
-    void visualizzaSensoriPaziente(QListWidgetItem *item);
+    void visualizzaSensoriPaziente(Sensor* sensor);
+    void visualizzaSensoriPreoccupanti();
+    void cercaPaziente(const QString& searchText);
+    void aggiungiPaziente();
+    void mostraPopupNuovoSensore();
+    void aggiungiPazienteAllaLista(Sensor* sensor, SensorHub* sensorHub);
+    void salvaSalvataggio();
+    void caricaSalvataggio();
 
 
 private:
-    QLineEdit *nomePazienteLineEdit;
-    QPushButton *aggiungiPazienteButton;
-    QPushButton *visualizzaGrafoButton;
-    QGraphicsView *grafoView;
-    QGraphicsScene *grafoScene;
-    QListWidget *listaPazientiWidget;
-    QVBoxLayout *mainLayout;
 
+    SensorHub* sensorHub;
+    QListWidget* listaPazientiWidget;
+    QPushButton* aggiungiPazienteButton;
+    QLineEdit* cercaPazienteLineEdit;
+    QCheckBox *preoccupantiCheckBox;
+    QPushButton *salvaSalvataggioButton;
+    QPushButton *caricaSalvataggioButton;
 
-    SensorHub *sensorHub;
 };
 
 #endif // MAINWINDOW_H

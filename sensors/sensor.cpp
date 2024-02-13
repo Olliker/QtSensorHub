@@ -40,6 +40,15 @@ void Sensor::addValore(double valore) {
     valori.push_back(valore);
 }
 
+bool Sensor::isPreoccupante() {
+    if (valori.empty()) {
+        return false;
+    }
+    return valori.back() < getMinAccettabile() || valori.back() > getMaxAccettabile();
+}
+
 void Sensor::resetValori() {
     valori.clear();
 }
+
+

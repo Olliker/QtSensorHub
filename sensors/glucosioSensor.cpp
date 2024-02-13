@@ -1,29 +1,32 @@
 #include "glucosioSensor.h"
 
-double GlicosioSensor::maxAccettabile = 99;
-double GlicosioSensor::minAccettabile = 70;
-string GlicosioSensor::unitaMisura = "mg/dL";
+double GlucosioSensor::maxAccettabile = 99;
+double GlucosioSensor::minAccettabile = 70;
+string GlucosioSensor::unitaMisura = "mg/dL";
 
-void GlicosioSensor::calibra() {
+void GlucosioSensor::calibra() {
     setOffset((rand() % 11) - 5.0);
 }
 
-void GlicosioSensor::generaValore() {
+void GlucosioSensor::generaValore() {
     double valore = rand() % 30 + 70 + getOffset();
     addValore(valore);
 }
 
-double GlicosioSensor::getMaxAccettabile() {
+double GlucosioSensor::getMaxAccettabile() {
     return maxAccettabile;
 }
 
-double GlicosioSensor::getMinAccettabile() {
+double GlucosioSensor::getMinAccettabile() {
     return minAccettabile;
 }
 
-string GlicosioSensor::getUnitaMisura() {
+string GlucosioSensor::getUnitaMisura() {
     return unitaMisura;
 }
 
+string GlucosioSensor::getTipo() const {
+    return "glucosio";
+}
 
 

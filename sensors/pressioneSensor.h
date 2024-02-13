@@ -16,6 +16,7 @@ public:
     double getMaxAccettabile() override;
     double getMinAccettabile() override;
     string getUnitaMisura() override;
+    string getTipo() const override;
 
     ~PressioneSensor() = default;
 };
