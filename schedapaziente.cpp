@@ -6,35 +6,46 @@
 #include <QMessageBox>
 
 
-SchedaPaziente::SchedaPaziente(const QString& nomePaziente, int numSensori, QWidget *parent)
-    : QMainWindow(parent), nomePaziente(nomePaziente), numSensori(numSensori)
+SchedaPaziente::SchedaPaziente(Sensor* sensor, QWidget *parent)
+    : QMainWindow(parent)
 {
-    setWindowTitle(nomePaziente);
-    setMinimumSize(800, 600);
+    // Imposta il titolo della finestra
+    setWindowTitle("Scheda Paziente");
 
-    // Creazione del layout principale
-    QVBoxLayout* mainLayout = new QVBoxLayout();
+    // Imposta il nome del paziente
+    nomePaziente = QString::fromStdString(sensor->getPaziente());
 
-    // Aggiungi pulsante per mostrare i grafici dei sensori
-    QPushButton* mostraGraficoButton = new QPushButton("Mostra Grafico Sensori");
-    connect(mostraGraficoButton, &QPushButton::clicked, this, &SchedaPaziente::mostraGraficoSensori);
+    // Imposta il numero di sensori
+    numSensori = 1;
 
+    // Crea un layout verticale
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+
+    // Crea un pulsante per aggiungere un sensore
+    QPushButton *aggiungiSensoreButton = new QPushButton("Aggiungi Sensore");
+    connect(aggiungiSensoreButton, &QPushButton::clicked, this, &SchedaPaziente::aggiungiSensore);
+
+    // Crea un pulsante per mostrare i grafici dei sensori
+    QPushButton *mostraGraficoButton = new QPushButton("Mostra Grafico");
+    connect(mostraGraficoButton, &QPushButton::clicked, this, &SchedaPaziente::mostraGraficoSensore);
+
+    // Aggiungi i pulsanti al layout principale
+    mainLayout->addWidget(aggiungiSensoreButton);
     mainLayout->addWidget(mostraGraficoButton);
 
-    // Imposta il layout principale della finestra
-    QWidget* centralWidget = new QWidget();
+    // Crea un widget principale e imposta il layout
+    QWidget *centralWidget = new QWidget();
     centralWidget->setLayout(mainLayout);
     setCentralWidget(centralWidget);
 }
 
-void SchedaPaziente::aggiungiSensore(const QString& nomeSensore, double ultimoValore, const QString& unitaMisura)
+void SchedaPaziente::aggiungiSensore()
 {
-    // Aggiungi qui la logica per visualizzare le informazioni del sensore
-    // (potresti usare QLabel, QTableWidget, ecc.)
-    qDebug() << "Sensore aggiunto: " << nomeSensore << ", Ultimo Valore: " << ultimoValore << " " << unitaMisura;
+    // Aggiungi qui la logica per aggiungere un sensore al paziente
+    QMessageBox::information(this, "Info", "Implementa la logica per aggiungere un sensore al paziente.");
 }
 
-void SchedaPaziente::mostraGraficoSensori()
+void SchedaPaziente::mostraGraficoSensore()
 {
     // Aggiungi qui la logica per mostrare i grafici dei sensori
     // (potresti utilizzare QChartView con QLineSeries per ciascun sensore)

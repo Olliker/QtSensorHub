@@ -2,6 +2,7 @@
 #ifndef SCHEDAPAZIENTE_H
 #define SCHEDAPAZIENTE_H
 
+#include "sensors/sensor.h"
 #include <QMainWindow>
 
 
@@ -10,16 +11,16 @@ class SchedaPaziente : public QMainWindow
     Q_OBJECT
 
 public:
-    SchedaPaziente(const QString& nomePaziente, int numSensori, QWidget *parent = nullptr);
+    SchedaPaziente(Sensor* sensor, QWidget *parent = nullptr);
 
-    void aggiungiSensore(const QString& nomeSensore, double ultimoValore, const QString& unitaMisura);
+    void aggiungiSensore();
 
 private:
     QString nomePaziente;
     int numSensori;
 
 private slots:
-    void mostraGraficoSensori();
+    void mostraGraficoSensore();
 };
 
 #endif // SCHEDAPAZIENTE_H

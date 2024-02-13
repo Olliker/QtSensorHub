@@ -1,5 +1,6 @@
 
 #include "pazienteitemwidget.h"
+#include "schedapaziente.h"
 #include <QVBoxLayout>
 #include <QMouseEvent>
 
@@ -38,7 +39,8 @@ void PazienteItemWidget::mousePressEvent(QMouseEvent *event) {
 
 void PazienteItemWidget::mostraDettagliSensore() {
     // Aggiungi qui la logica per mostrare i dettagli del sensore usando la SCHEDA PAZIENTE
-    qDebug() << "Mostra dettagli sensore: " << sensor->getPaziente().c_str();
+    SchedaPaziente* schedaPaziente = new SchedaPaziente(sensor);
+    schedaPaziente->show();
 }
 
 QString PazienteItemWidget::getNomePaziente() const {

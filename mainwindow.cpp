@@ -118,13 +118,7 @@ void MainWindow::aggiungiPazienteAllaLista(Sensor *sensor, SensorHub *sensorHub)
 
 void MainWindow::visualizzaSensoriPaziente(Sensor* sensor)
 {
-    if (sensor == nullptr)
-    {
-        return;
-    }
-    // Aggiungi qui la logica per visualizzare i sensori del paziente
-    // (potresti utilizzare un'altra finestra o un widget per mostrare i sensori)
-    qDebug() << "Visualizza sensori del paziente: " << sensor->getPaziente();
+    qDebug() << "Visualizza sensori paziente";
 }
 
 
