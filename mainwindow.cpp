@@ -2,13 +2,22 @@
 #include "mainwindow.h"
 #include "pazienteitemwidget.h"
 #include "newsensorpopup.h"
+#include "qmessagebox.h"
 #include "qscrollarea.h"
+#include "sensors/glucosioSensor.h"
+#include "sensors/insulinaSensor.h"
+#include "sensors/pressioneSensor.h"
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QPushButton>
 #include <QLineEdit>
 #include <QDebug>
 #include <QString>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QJsonObject>
+#include <QFile>
+#include <QFileDialog>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -19,6 +28,7 @@ MainWindow::MainWindow(QWidget *parent)
     QPushButton *aggiungiPazienteButton = new QPushButton("Aggiungi paziente");
     QPushButton *salvaSalvataggioButton = new QPushButton("Salva");
     QPushButton *caricaSalvataggioButton = new QPushButton("Carica");
+    QPushButton *aggiornaListaButton = new QPushButton("Aggiorna");
     QLineEdit *cercaPazienteLineEdit = new QLineEdit();
     QCheckBox *preoccupantiCheckBox = new QCheckBox("Visualizza Preoccupanti");
     cercaPazienteLineEdit->setPlaceholderText("Cerca Paziente...");
@@ -30,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
     buttonLayout->addStretch(); // Aggiunge uno spazio elastico per spostare i pulsanti a destra
     buttonLayout->addWidget(salvaSalvataggioButton);
     buttonLayout->addWidget(caricaSalvataggioButton);
+    buttonLayout->addWidget(aggiornaListaButton);
     buttonLayout->addWidget(preoccupantiCheckBox);
     buttonLayout->addWidget(cercaPazienteLineEdit);
 
@@ -64,20 +75,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(cercaPazienteLineEdit, &QLineEdit::textChanged, this, &MainWindow::cercaPaziente);
     connect(aggiungiPazienteButton, SIGNAL(clicked()), this, SLOT(mostraPopupNuovoSensore()));
-    connect(listaPazientiWidget, &QListWidget::itemClicked, this, [=](QListWidgetItem *item) {
-        PazienteItemWidget *pazienteItem = qobject_cast<PazienteItemWidget *>(listaPazientiWidget->itemWidget(item));
-        visualizzaSensoriPaziente(pazienteItem->getSensor());
-    });
-    connect(preoccupantiCheckBox, &QCheckBox::stateChanged, this, [=](int state) {
-        if (state == Qt::Checked)
-        {
-            visualizzaSensoriPreoccupanti();
-        }
-        else
-        {
-            aggiornaLista();
-        }
-    });
+    connect(aggiornaListaButton, SIGNAL(clicked()), this, SLOT(aggiornaLista()));
+    connect(preoccupantiCheckBox, &QCheckBox::stateChanged, this, &MainWindow::visualizzaSensoriPreoccupanti);
+    connect(salvaSalvataggioButton, SIGNAL(clicked()), this, SLOT(salvaSalvataggio()));
+    connect(caricaSalvataggioButton, SIGNAL(clicked()), this, SLOT(caricaSalvataggio()));
+
 
     aggiornaLista();
 }
@@ -116,11 +118,6 @@ void MainWindow::aggiungiPazienteAllaLista(Sensor *sensor, SensorHub *sensorHub)
     listaPazientiWidget->setItemWidget(listItem, item);
 }
 
-void MainWindow::visualizzaSensoriPaziente(Sensor* sensor)
-{
-    qDebug() << "Visualizza sensori paziente";
-}
-
 
 void MainWindow::visualizzaSensoriPreoccupanti()
 {
@@ -140,9 +137,6 @@ void MainWindow::visualizzaSensoriPreoccupanti()
         }
     }
 }
-
-
-#include <QString>
 
 void MainWindow::cercaPaziente(const QString &searchText)
 {
@@ -178,13 +172,88 @@ void MainWindow::mostraPopupNuovoSensore()
     aggiungiPaziente();
 }
 
+void MainWindow::salvaSalvataggio()
+{
+    // Crea un oggetto JSON per rappresentare lo stato dell'applicazione
+    QJsonArray sensoriArray;
+    for (int i = 0; i < sensorHub->getSensors().size(); i++)
+    {
+        auto sensor = sensorHub->getSensors().at(i);
 
-void MainWindow::salvaSalvataggio() {
-    // Implementa la logica per salvare il tuo stato o dati
-    qDebug() << "Salvataggio effettuato";
+        QJsonObject sensoreObject;
+        sensoreObject["paziente"] = QString::fromStdString(sensor->getPaziente());
+        sensoreObject["Tipo"] = QString::fromStdString(sensor->getTipo());
+
+        // Crea un array JSON per i valori del sensore
+        QJsonArray valoriArray;
+        for (int j = 0; j < (int)sensor->getValori().size(); j++)
+        {
+            valoriArray.append(sensor->getValori().at(j));
+        }
+
+        // Aggiunge l'array di valori all'oggetto JSON del sensore
+        sensoreObject["valori"] = valoriArray;
+
+        sensoriArray.append(sensoreObject);
+    }
+    QJsonObject statoObject;
+    statoObject["sensori"] = sensoriArray;
+    QJsonDocument document(statoObject);
+
+    // Apre una finestra di dialogo per selezionare il percorso del file
+    QString filePath = QFileDialog::getSaveFileName(this, "Salva Salvataggio", "", "JSON Files (*.json)");
+    QFile file(filePath);
+    file.open(QIODevice::WriteOnly | QIODevice::Text);
+    file.write(document.toJson());
+    file.close();
 }
 
-void MainWindow::caricaSalvataggio() {
-    // Implementa la logica per caricare il tuo stato o dati salvati
-    qDebug() << "Salvataggio caricato";
+void MainWindow::caricaSalvataggio()
+{
+    QString filePath = QFileDialog::getOpenFileName(this, "Carica Salvataggio", "", "JSON Files (*.json)");
+    QFile file(filePath);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+    QByteArray fileData = file.readAll();
+    file.close();
+
+    QJsonDocument document = QJsonDocument::fromJson(fileData);
+    QJsonObject statoObject = document.object();
+    QJsonArray sensoriArray = statoObject["sensori"].toArray();
+
+    // Rimuove tutti i sensori esistenti
+    sensorHub->clearSensor();
+    for (int i = 0; i < sensoriArray.size(); i++)
+    {
+        QJsonObject sensoreObject = sensoriArray[i].toObject();
+        QString paziente = sensoreObject["paziente"].toString();
+        QString tipo = sensoreObject["Tipo"].toString();
+
+        sensorHub->addSensor(paziente.toStdString(), tipo.toStdString());
+
+        // Recupera l'array di valori dal sensoreObject
+        QJsonArray valoriArray = sensoreObject["valori"].toArray();
+        for (int j = 0; j < valoriArray.size(); j++)
+        {
+            // Aggiunge ogni valore all'array di valori del sensore
+            sensorHub->getSensors().back()->addValore(valoriArray.at(j).toDouble());
+        }
+    }
+
+    aggiornaLista();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Salvataggio", "Vuoi salvare prima di chiudere?", QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
+
+    if (reply == QMessageBox::Yes) {
+        // Chiamare la funzione di salvataggio qui
+        salvaSalvataggio();
+        event->accept();
+    } else if (reply == QMessageBox::No) {
+        event->accept();
+    } else {
+        event->ignore();
+    }
 }

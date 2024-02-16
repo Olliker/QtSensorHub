@@ -9,6 +9,7 @@ void PressioneSensor::calibra() {
 }
 
 void PressioneSensor::generaValore() {
+    calibra();
     double valore = rand() % 60 + 70 + getOffset();
     addValore(valore);
 }
@@ -22,10 +23,10 @@ double PressioneSensor::getMinAccettabile() {
     return minAccettabile;
 }
 
-string PressioneSensor::getUnitaMisura() {
+string PressioneSensor::getUnitaMisura()  {
     return unitaMisura;
 }
 
-string PressioneSensor::getTipo() const {
+string PressioneSensor::getTipo()  {
     return "pressione";
 }

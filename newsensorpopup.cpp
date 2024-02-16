@@ -5,6 +5,7 @@
 
 NewSensorPopup::NewSensorPopup(SensorHub* sensorHub, QWidget *parent)
     : QDialog(parent),
+
     sensorHub(sensorHub),
     nomePazienteLineEdit(new QLineEdit(this)),
     glucosioCheckBox(new QCheckBox("Glucosio", this)),

@@ -9,6 +9,7 @@ void GlucosioSensor::calibra() {
 }
 
 void GlucosioSensor::generaValore() {
+    calibra();
     double valore = rand() % 30 + 70 + getOffset();
     addValore(valore);
 }
@@ -25,7 +26,7 @@ string GlucosioSensor::getUnitaMisura() {
     return unitaMisura;
 }
 
-string GlucosioSensor::getTipo() const {
+string GlucosioSensor::getTipo() {
     return "glucosio";
 }
 

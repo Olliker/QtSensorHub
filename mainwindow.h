@@ -19,7 +19,6 @@ public:
 
 public slots:
     void aggiornaLista();
-    void visualizzaSensoriPaziente(Sensor* sensor);
     void visualizzaSensoriPreoccupanti();
     void cercaPaziente(const QString& searchText);
     void aggiungiPaziente();
@@ -27,6 +26,8 @@ public slots:
     void aggiungiPazienteAllaLista(Sensor* sensor, SensorHub* sensorHub);
     void salvaSalvataggio();
     void caricaSalvataggio();
+protected:
+    void closeEvent(QCloseEvent *event) override;
 
 
 private:

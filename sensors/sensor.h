@@ -18,6 +18,7 @@ public:
     virtual void calibra() = 0;
     virtual void generaValore() = 0;
 
+    void simulaValori(int n);
     string getPaziente() const ;
     vector<double> getValori() const ;
     double getOffset() const ;
@@ -29,15 +30,14 @@ public:
     void setValore(int i, double valore);
     void setOffset(double offset);
     void addValore(double valore);
-
+    void eliminaValore(int i);
     void resetValori();
-
     bool isPreoccupante();
 
     virtual double getMinAccettabile() = 0;
     virtual double getMaxAccettabile() = 0;
     virtual string getUnitaMisura() = 0;
-    virtual string getTipo() const = 0;
+    virtual string getTipo() = 0;
     ~Sensor() = default;
 
 };

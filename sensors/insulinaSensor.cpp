@@ -9,6 +9,7 @@ void InsulinaSensor::calibra() {
 }
 
 void InsulinaSensor::generaValore() {
+    calibra();
     double valore = rand() % 20 + 5 + getOffset();
     addValore(valore);
 }
@@ -25,6 +26,6 @@ string InsulinaSensor::getUnitaMisura() {
     return unitaMisura;
 }
 
-string InsulinaSensor::getTipo() const {
+string InsulinaSensor::getTipo()  {
     return "insulina";
 }

@@ -8,6 +8,13 @@ vector<double> Sensor::getValori() const {
     return valori;
 }
 
+void Sensor::simulaValori(int n) {
+    for (int i = 0; i < n; i++) {
+        calibra();
+        generaValore();
+    }
+}
+
 double Sensor::getOffset() const {
     return offset;
 }
@@ -38,6 +45,9 @@ void Sensor::setOffset(double offset) {
 
 void Sensor::addValore(double valore) {
     valori.push_back(valore);
+}
+void Sensor::eliminaValore(int i) {
+    valori.erase(valori.begin() + i);
 }
 
 bool Sensor::isPreoccupante() {

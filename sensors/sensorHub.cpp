@@ -13,6 +13,8 @@ SensorHub* SensorHub::getInstance() {
     return instance;
 }
 
+SensorHub::SensorHub() {}
+
 void SensorHub::addSensor(string paziente, string tipo) {
 //aggiungo il sensore di un paziente gia presente ma solo se non ne ha già uno
     for (auto sensor : sensors) {
@@ -28,6 +30,24 @@ void SensorHub::addSensor(string paziente, string tipo) {
     }
     else if (tipo == "insulina") {
         sensors.push_back(new InsulinaSensor(paziente, 0));
+    }
+}
+
+void SensorHub::addSensorConValore(string paziente, string tipo, double valore) {
+    //aggiungo il sensore di un paziente gia presente ma solo se non ne ha già uno
+    for (auto sensor : sensors) {
+        if (sensor->getPaziente() == paziente && sensor->getTipo() == tipo) {
+            return;
+        }
+    }
+    if (tipo == "glucosio") {
+        sensors.push_back(new GlucosioSensor(paziente, valore));
+    }
+    else if (tipo == "pressione") {
+        sensors.push_back(new PressioneSensor(paziente, valore));
+    }
+    else if (tipo == "insulina") {
+        sensors.push_back(new InsulinaSensor(paziente, valore));
     }
 }
 
@@ -52,6 +72,9 @@ void SensorHub::removeSensor(Sensor* sensor) {
             break;
         }
     }
+}
+void SensorHub::clearSensor() {
+    sensors.clear();
 }
 
 void SensorHub::calibraSensor(Sensor* sensor) {
@@ -116,15 +139,14 @@ vector<string> SensorHub::getPazienti() {
 }
 
 vector<Sensor*> SensorHub::getSensorsByPaziente(string paziente) {
-    vector<Sensor*> sensorsByPaziente;
+    vector<Sensor*> sensoriPaziente;
     for (auto sensor : sensors) {
         if (sensor->getPaziente() == paziente) {
-            sensorsByPaziente.push_back(sensor);
+            sensoriPaziente.push_back(sensor);
         }
     }
-    return sensorsByPaziente;
+    return sensoriPaziente;
 }
-
 
 vector<Sensor*> SensorHub::getSensors() const {
     return sensors;

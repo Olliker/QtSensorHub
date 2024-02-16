@@ -7,6 +7,7 @@ CONFIG += c++17
 # Altri elementi del tuo file .pro rimangono invariati
 
 SOURCES += \
+    grafo.cpp \
     main.cpp \
     newsensorpopup.cpp \
     pazienteitemwidget.cpp \
@@ -19,6 +20,7 @@ SOURCES += \
     mainwindow.cpp
 
 HEADERS += \
+    grafo.h \
     newsensorpopup.h \
     pazienteitemwidget.h \
     schedapaziente.h \

@@ -17,7 +17,6 @@ public:
     PazienteItemWidget(Sensor* sensor,SensorHub* SensorHub, QWidget* parent = nullptr);
 
     QString getNomePaziente() const;
-    void mostraDettagliSensore();
     Sensor* getSensor() const;
     int getNumeroTipologieSensori() const;
 
@@ -30,6 +29,8 @@ protected:
 private:
     QLabel* infoLabel;
     Sensor* sensor;
+    SensorHub* sensorHub;
+
 };
 
 #endif // PAZIENTEITEMWIDGET_H

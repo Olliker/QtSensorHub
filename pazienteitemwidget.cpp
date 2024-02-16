@@ -1,11 +1,14 @@
 
 #include "pazienteitemwidget.h"
 #include "schedapaziente.h"
+#include "mainwindow.h"
 #include <QVBoxLayout>
 #include <QMouseEvent>
 
+
+
 PazienteItemWidget::PazienteItemWidget(Sensor* sensor, SensorHub* sensorHub, QWidget* parent)
-    : QWidget(parent), sensor(sensor) {
+    : QWidget(parent), sensor(sensor){
     // Label unica che contiene tutte le informazioni
     infoLabel = new QLabel(this);
 
@@ -29,7 +32,12 @@ PazienteItemWidget::PazienteItemWidget(Sensor* sensor, SensorHub* sensorHub, QWi
     setStyleSheet("background-color: white; border: 2px solid black; border-radius: 10px;");
 
     // Connessione del segnale al click dell'oggetto
-    connect(this, &PazienteItemWidget::clicked, this, &PazienteItemWidget::mostraDettagliSensore);
+    connect(this, &PazienteItemWidget::clicked, this, [=]() {
+        SchedaPaziente* schedaPaziente = new SchedaPaziente(sensor->getPaziente().c_str(), sensorHub);
+        schedaPaziente->setSensoriPaziente(sensorHub->getSensorsByPaziente(sensor->getPaziente()));
+        schedaPaziente->show();
+    });
+
 }
 
 void PazienteItemWidget::mousePressEvent(QMouseEvent *event) {
@@ -37,11 +45,6 @@ void PazienteItemWidget::mousePressEvent(QMouseEvent *event) {
     emit clicked();
 }
 
-void PazienteItemWidget::mostraDettagliSensore() {
-    // Aggiungi qui la logica per mostrare i dettagli del sensore usando la SCHEDA PAZIENTE
-    SchedaPaziente* schedaPaziente = new SchedaPaziente(sensor);
-    schedaPaziente->show();
-}
 
 QString PazienteItemWidget::getNomePaziente() const {
     return QString::fromStdString(sensor->getPaziente());
